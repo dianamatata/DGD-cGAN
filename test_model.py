@@ -1,16 +1,11 @@
 #Test model
 
 import os
-from os.path import join
 import glob
-import time
-import numpy as np
 from PIL import Image
 import torch
-from torch import nn, optim
 from torchvision import transforms
 from torchvision.utils import save_image
-from torch.autograd import Variable
 from nets.networks_Dgd import ResUnet1, ResUnet2, PatchDiscriminator
 
 if torch.cuda.is_available():
@@ -27,23 +22,16 @@ G1 = ResUnet1().to(device)
 G2 = ResUnet2().to(device)
 D = PatchDiscriminator(in_c=3, num_filters=64, n_down=3).to(device)
 
-
 # Download the model weights https://drive.google.com/file/d/11fJ4WrxLCWIF890PvaHp_EuriKwI6QWl/view?usp=share_link
-#Load state dic
 G1.load_state_dict(torch.load(f'weights/G_dgdgan_epoch_850.pth', map_location=device))
 G2.load_state_dict(torch.load(f'weights/G2_dgdgan_epoch_850.pth', map_location=device))
 D.load_state_dict(torch.load(f'weights/D_dgdgan_epoch_850.pth', map_location=device))
 
-
-#Input path
-input_path = '/Users/avalos/Documents/Programming/DATA_Rovailake/material'
+input_path = '../DATA_Rovailake/galloway_subset'
 img_folder = glob.glob(os.path.join(input_path, '*.jpg'))
+output_dir = f"../DATA_Rovailake/underwater_image_restoration/DGD-cGAN_galloway"
 
-
-#Output path
-output_dir = f"/Users/avalos/Documents/Programming/DATA_Rovailake/underwater_image_restoration/DGD-cGAN"
-
-#Mode eval
+# Mode eval
 G1.eval()
 D.eval()
 
@@ -53,7 +41,6 @@ transform = transforms.Compose([transforms.Resize((1024, 1024), transforms.Inter
 
 ## testing 
 count = []
-d=1
 
 for img in img_folder:
     print(img)
@@ -63,10 +50,9 @@ for img in img_folder:
     input_img = input_img.to(device)
     dewatered_img = G1(input_img)
     dewatered_sample = dewatered_img
-    image_name = (img.split('/')[-1][:-4] +'_%d.jpg'%d)
+    image_name = (img.split('/')[-1][:-4] +'.jpg')
     file_path = os.path.join(output_dir, image_name)
     save_image(dewatered_sample, file_path, normalize=True)
-    d+=1
-    
+
 if (len(count) > 1):
     print ("Total imgs: %d" % len(img_folder)) 
