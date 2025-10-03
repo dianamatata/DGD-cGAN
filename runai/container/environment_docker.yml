@@ -1,0 +1,7 @@
+name: underwater_image_restoration
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - ipykernel
